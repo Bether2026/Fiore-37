@@ -49,7 +49,23 @@ section{padding:40px 0;}
   text-align:center;overflow:hidden;transition:opacity .7s ease,transform .7s ease;
 }
 #portada.fade-out{opacity:0;transform:scale(1.04);pointer-events:none;}
-#portadaImg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 22%;}
+
+/* ===== DESTELLO AL ABRIR ===== */
+#destello{
+  position:fixed;inset:0;z-index:35;pointer-events:none;opacity:0;
+  background:radial-gradient(circle at 50% 62%, rgba(255,255,255,.95) 0%, rgba(191,224,255,.7) 35%, rgba(125,200,255,0) 70%);
+}
+#destello.show{animation:flashPop .75s ease-out forwards;}
+@keyframes flashPop{
+  0%{opacity:0;}
+  18%{opacity:1;}
+  100%{opacity:0;}
+}
+#portadaImg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 22%;animation:kenBurns 16s ease-in-out infinite alternate;}
+@keyframes kenBurns{
+  0%{transform:scale(1) translate(0,0);}
+  100%{transform:scale(1.07) translate(-1%,-1%);}
+}
 .portada-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,13,24,.55) 0%,rgba(6,13,24,.12) 32%,rgba(6,13,24,.5) 66%,rgba(6,13,24,.96) 100%);}
 .portada-vignette{position:absolute;inset:0;box-shadow:inset 0 0 160px 40px rgba(6,13,24,.85);}
 .portada-top{position:absolute;top:max(26px,env(safe-area-inset-top));left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:9px;}
@@ -76,7 +92,7 @@ section{padding:40px 0;}
 #invitacion[hidden]{display:none;}
 
 /* ===== HERO JERSEY ===== */
-#hero{min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 0 50px;}
+#hero{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:56px 0 28px;}
 .hero-eyebrow{
   margin-top:6px;display:inline-block;
   font-family:'Anton',sans-serif;font-size:clamp(30px,9.5vw,44px);letter-spacing:1px;line-height:1;
@@ -103,7 +119,7 @@ section{padding:40px 0;}
 .hero-fechahora{margin-top:30px;display:flex;align-items:center;gap:14px;font-weight:700;font-size:15px;}
 .hero-fechahora .dot{width:5px;height:5px;border-radius:50%;background:var(--c1);}
 @keyframes bobDown{0%,100%{transform:translateY(0);opacity:.55;}50%{transform:translateY(7px);opacity:1;}}
-.hero-deslizá{margin-top:46px;display:flex;flex-direction:column;align-items:center;gap:7px;color:rgba(234,243,251,.45);animation:bobDown 2.2s ease-in-out infinite;}
+.hero-deslizá{margin-top:22px;display:flex;flex-direction:column;align-items:center;gap:7px;color:rgba(234,243,251,.45);animation:bobDown 2.2s ease-in-out infinite;}
 
 /* ===== MOOD / FRASE ===== */
 .mood-tag{text-align:center;font-size:12px;letter-spacing:3px;font-weight:700;color:var(--c1);margin-bottom:18px;}
@@ -187,7 +203,7 @@ footer .credito{margin-top:18px;font-size:11px;letter-spacing:2px;color:rgba(125
   padding:26px;text-align:center;background:rgba(6,13,24,.82);backdrop-filter:blur(14px);animation:sweepUp .5s ease;
 }
 #revealModal[hidden]{display:none;}
-.reveal-emoji{font-size:64px;animation:spinIn .6s cubic-bezier(.2,.8,.2,1) forwards;filter:drop-shadow(0 0 26px rgba(125,200,255,.5));}
+.reveal-img{width:min(58vw,210px);max-height:210px;object-fit:contain;animation:spinIn .6s cubic-bezier(.2,.8,.2,1) forwards;filter:drop-shadow(0 0 26px rgba(125,200,255,.5));}
 .reveal-titulo{margin-top:18px;font-family:'Anton',sans-serif;font-size:38px;line-height:.95;color:#fff;text-shadow:0 0 26px rgba(125,200,255,.5);}
 .reveal-msg{margin-top:12px;font-size:16px;line-height:1.5;color:var(--ink);font-weight:600;max-width:340px;}
 .btn-cerrar-reveal{margin-top:30px;display:inline-flex;align-items:center;gap:9px;border:1.5px solid rgba(125,200,255,.4);background:rgba(125,200,255,.08);color:var(--ink);font-weight:700;font-size:14px;padding:13px 30px;border-radius:50px;min-height:44px;}
@@ -234,6 +250,7 @@ footer .credito{margin-top:18px;font-size:11px;letter-spacing:2px;color:rgba(125
     <div class="portada-fecha">Domingo 12 de julio · 13 hs</div>
   </div>
 </div>
+<div id="destello"></div>
 
 <!-- ===== INVITACIÓN ===== -->
 <div id="invitacion" hidden>
@@ -340,8 +357,8 @@ footer .credito{margin-top:18px;font-size:11px;letter-spacing:2px;color:rgba(125
         <label class="rsvp-label">¿CUÁNTOS VIENEN?</label>
         <input type="number" id="rsvpPersonas" min="1" value="1">
         <div class="rsvp-btns">
-          <button class="rsvp-btn rsvp-si" onclick="enviarRSVP(true)">¡Qué alegría! 💙</button>
-          <button class="rsvp-btn rsvp-no" onclick="enviarRSVP(false)">¡Vos te lo perdés! 😝</button>
+          <button class="rsvp-btn rsvp-si" onclick="enviarRSVP(true)">Sí voy</button>
+          <button class="rsvp-btn rsvp-no" onclick="enviarRSVP(false)">No podré ir</button>
         </div>
       </div>
 
@@ -372,14 +389,12 @@ footer .credito{margin-top:18px;font-size:11px;letter-spacing:2px;color:rgba(125
 <!-- ===== REVEAL MODAL RSVP ===== -->
 <div id="revealModal" hidden>
   <div id="revealSi" hidden>
-    <div class="reveal-emoji">🥳💙</div>
-    <div class="reveal-titulo display">¡QUÉ ALEGRÍA!</div>
-    <p class="reveal-msg">Ya tenés tu lugar en la mesa. Te espero para festejar este cumple a lo grande. 💙🤍</p>
+    <img class="reveal-img" src="Si.png" alt="¡Sí!">
+    <div class="reveal-titulo display">Que alegria !!!!!!</div>
   </div>
   <div id="revealNo" hidden>
-    <div class="reveal-emoji">😝🤍</div>
-    <div class="reveal-titulo display">¡VOS TE LO PERDÉS!</div>
-    <p class="reveal-msg">Gracias por avisar de corazón. Vas a estar igual en mi corazón, y nos vemos pronto. 🤍</p>
+    <img class="reveal-img" src="No.png" alt="¡No!">
+    <div class="reveal-titulo display">¡VOS TE LO PERDÉS! 😝</div>
   </div>
   <button class="btn-cerrar-reveal" onclick="cerrarReveal()">Cerrar</button>
 </div>
@@ -494,6 +509,7 @@ function observeReveals(){
 const audio = document.getElementById('bgAudio');
 document.getElementById('btnAbrir').addEventListener('click', ()=>{
   audio.play().catch(()=>{});
+  document.getElementById('destello').classList.add('show');
   const portada = document.getElementById('portada');
   portada.classList.add('fade-out');
   setTimeout(()=>{
