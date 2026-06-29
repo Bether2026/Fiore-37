@@ -96,19 +96,18 @@ section{padding:40px 0;}
 .hero-eyebrow{
   margin-top:6px;display:inline-block;
   font-family:'Anton',sans-serif;font-size:clamp(30px,9.5vw,44px);letter-spacing:1px;line-height:1;
-  transform:rotate(-3deg);
-  background:linear-gradient(90deg,#ffffff 0%, var(--c1) 55%, var(--gold) 100%);
+  background:linear-gradient(90deg,#ffffff 0%, var(--c1) 100%);
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
-  animation:tiltPop .9s cubic-bezier(.2,.8,.2,1.4) both, glowText 2.4s ease-in-out infinite .9s;
+  animation:popIn .7s cubic-bezier(.2,.8,.2,1.4) both, glowText 2.4s ease-in-out infinite .7s;
 }
-@keyframes tiltPop{
-  0%{opacity:0;transform:rotate(-14deg) scale(.6);}
-  65%{opacity:1;transform:rotate(3deg) scale(1.1);}
-  100%{opacity:1;transform:rotate(-3deg) scale(1);}
+@keyframes popIn{
+  0%{opacity:0;transform:scale(.65);}
+  65%{opacity:1;transform:scale(1.1);}
+  100%{opacity:1;transform:scale(1);}
 }
 @keyframes glowText{
-  0%,100%{filter:drop-shadow(0 0 10px rgba(125,200,255,.35));}
-  50%{filter:drop-shadow(0 0 22px rgba(125,200,255,.75)) drop-shadow(0 0 14px rgba(232,180,61,.55));}
+  0%,100%{filter:drop-shadow(0 0 10px rgba(125,200,255,.4));}
+  50%{filter:drop-shadow(0 0 26px rgba(125,200,255,.85));}
 }
 .hero-nombre{font-size:clamp(54px,16vw,92px);line-height:.86;letter-spacing:1px;color:#fff;text-shadow:0 0 30px rgba(125,200,255,.4);margin-top:4px;}
 .hero-num-wrap{position:relative;margin-top:14px;}
@@ -185,9 +184,17 @@ section{padding:40px 0;}
 .link-sutil{background:none;border:none;color:var(--c1);font-weight:700;font-size:13px;text-decoration:underline;font-family:'Manrope',sans-serif;min-height:30px;}
 
 /* ===== TE ESPERO ===== */
-.te-espero{
-  text-align:center;font-family:'Anton',sans-serif;font-size:clamp(44px,13vw,70px);letter-spacing:1px;
-  margin-top:10px;line-height:1;color:#fff;text-shadow:0 0 30px rgba(125,200,255,.5),0 8px 22px rgba(0,0,0,.5);
+.te-espero{text-align:center;margin-top:10px;}
+.te-espero-txt{
+  display:inline-block;font-family:'Anton',sans-serif;font-size:clamp(44px,13vw,70px);letter-spacing:1px;line-height:1;
+  background:linear-gradient(90deg,#ffffff 0%, var(--c1) 100%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
+  animation:glowTextBig 2.6s ease-in-out infinite;
+}
+.te-espero-corazon{font-size:clamp(32px,9vw,50px);vertical-align:-4px;display:inline-block;filter:drop-shadow(0 0 14px rgba(125,200,255,.5));margin-left:4px;}
+@keyframes glowTextBig{
+  0%,100%{filter:drop-shadow(0 0 14px rgba(125,200,255,.4));}
+  50%{filter:drop-shadow(0 0 30px rgba(125,200,255,.85));}
 }
 
 /* ===== FOOTER ===== */
@@ -281,7 +288,7 @@ footer .credito{margin-top:18px;font-size:11px;letter-spacing:2px;color:rgba(125
       <div class="corazones rev" data-rev>💙 🤍 💙</div>
       <div class="video-wrap rev" data-rev>
         <div class="video-frame">
-          <video id="videoFiore" src="Fiore.mp4" autoplay muted loop playsinline webkit-playsinline></video>
+          <video id="videoFiore" src="Fiore.mp4(2)" autoplay muted loop playsinline webkit-playsinline></video>
         </div>
       </div>
     </div>
@@ -375,7 +382,7 @@ footer .credito{margin-top:18px;font-size:11px;letter-spacing:2px;color:rgba(125
 
   <section style="padding-top:10px;">
     <div class="container">
-      <div class="te-espero rev" data-rev>¡TE ESPERO!!! 🤍</div>
+      <div class="te-espero rev" data-rev><span class="te-espero-txt display">TE ESPERO!!!</span><span class="te-espero-corazon">🤍</span></div>
     </div>
   </section>
 
