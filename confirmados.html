@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Confirmados — Bether Studio</title>
+<meta name="theme-color" content="#060d18">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --c1:#7dc8ff; --c1-deep:#3a8fd6; --gold:#E8B43D;
+  --bg2:#060d18; --ink:#EAF3FB; --dim:rgba(234,243,251,.6);
+  --line:rgba(125,200,255,.18); --paper:rgba(13,28,50,.55);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100svh;background:var(--bg2);color:var(--ink);font-family:'Manrope',sans-serif;}
+.display{font-family:'Anton',sans-serif;letter-spacing:.5px;}
+.wrap{max-width:520px;margin:0 auto;padding:36px 22px 60px;}
+h1{font-family:'Anton',sans-serif;font-size:clamp(30px,8vw,40px);}
+.sub{color:var(--c1);font-size:13px;font-weight:700;letter-spacing:1px;margin-top:4px;}
+
+.resumen{display:flex;gap:10px;margin-top:24px;}
+.card{flex:1;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:16px 6px;text-align:center;}
+.card .num{font-family:'Anton',sans-serif;font-size:30px;color:#fff;}
+.card .lbl{font-size:10px;letter-spacing:1px;color:var(--c1);margin-top:4px;}
+
+#buscador{
+  width:100%;margin-top:22px;padding:13px 16px;border-radius:12px;border:1.5px solid rgba(125,200,255,.25);
+  background:rgba(255,255,255,.04);color:var(--ink);font-size:15px;outline:none;
+}
+#buscador:focus{border-color:var(--c1);}
+#buscador[hidden]{display:none;}
+
+#lista{margin-top:16px;display:flex;flex-direction:column;gap:8px;}
+.item{display:flex;align-items:center;gap:12px;background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:12px 14px;}
+.item .ico{font-size:18px;flex:none;}
+.item .nombre{flex:1;font-weight:700;font-size:14px;}
+.item .personas{font-size:12px;color:var(--dim);flex:none;}
+#estado{text-align:center;color:var(--dim);font-size:14px;margin-top:24px;}
+.vacio{text-align:center;color:var(--dim);font-size:14px;margin-top:30px;}
+.error{text-align:center;color:#ff9b9b;font-size:14px;margin-top:30px;padding:0 10px;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="display" style="font-size:18px;color:var(--c1);">BETHER STUDIO</div>
+  <h1 style="margin-top:6px;">Confirmados</h1>
+  <p class="sub" id="subtitulo">Cargando…</p>
+
+  <div class="resumen">
+    <div class="card"><div class="num" id="numSi">—</div><div class="lbl">CONFIRMADOS</div></div>
+    <div class="card"><div class="num" id="numPersonas">—</div><div class="lbl">PERSONAS</div></div>
+    <div class="card"><div class="num" id="numNo">—</div><div class="lbl">NO VIENEN</div></div>
+  </div>
+
+  <input id="buscador" placeholder="Buscar por nombre..." hidden>
+
+  <div id="lista"></div>
+  <div id="estado"></div>
+</div>
+
+<script>
+/* ===== CONFIG =====
+   Cambiá esto por el dominio real una vez que despliegues bether-admin en Vercel. */
+const API_BASE = 'https://TU-DOMINIO.vercel.app';
+
+const params = new URLSearchParams(location.search);
+const token = params.get('t');
+
+// El slug es el nombre de la carpeta donde vive este archivo:
+// bether2026.github.io/fiorella-37-2026/confirmados.html -> "fiorella-37-2026"
+const partesRuta = location.pathname.split('/').filter(Boolean);
+const evento = partesRuta[0] || '';
+
+let filas = [];
+
+if (!token || !evento) {
+  mostrarError('Este link no es válido. Pedile a Bether Studio que te mande el link correcto.');
+} else {
+  cargar();
+}
+
+async function cargar(){
+  document.getElementById('subtitulo').textContent = evento;
+  document.getElementById('estado').textContent = 'Cargando...';
+  try{
+    const res = await fetch(`${API_BASE}/api/confirmados?evento=${encodeURIComponent(evento)}&t=${encodeURIComponent(token)}`);
+    if (res.status === 401) { mostrarError('El link no es válido o ya no está activo.'); return; }
+    if (res.status === 404) { mostrarError('No encontramos este evento.'); return; }
+    if (!res.ok) throw new Error('error');
+    const data = await res.json();
+    filas = dedupePorNombre(data);
+    document.getElementById('estado').textContent = '';
+    document.getElementById('buscador').hidden = false;
+    render(filas);
+  }catch(e){
+    document.getElementById('estado').textContent = 'No pudimos cargar las confirmaciones. Probá de nuevo en un momento.';
+  }
+}
+
+function mostrarError(msg){
+  document.getElementById('subtitulo').textContent = '';
+  document.getElementById('estado').innerHTML = '<div class="error">' + msg + '</div>';
+}
+
+// Si alguien usó "Cambiar mi respuesta" en la invitación, queda más de una fila
+// con el mismo nombre. Nos quedamos solo con la más reciente de cada persona.
+function dedupePorNombre(data){
+  const porNombre = new Map();
+  data.forEach(r=>{
+    const key = (r.nombre || '').trim().toLowerCase();
+    if (!key) return;
+    const previa = porNombre.get(key);
+    if (!previa || new Date(r.created_at) > new Date(previa.created_at)) {
+      porNombre.set(key, r);
+    }
+  });
+  return [...porNombre.values()].sort((a,b)=> new Date(b.created_at) - new Date(a.created_at));
+}
+
+function render(lista){
+  const confirmados = lista.filter(r=>r.asiste);
+  const noVienen = lista.filter(r=>!r.asiste);
+  const totalPersonas = confirmados.reduce((s,r)=> s + (r.personas || 1), 0);
+
+  document.getElementById('numSi').textContent = confirmados.length;
+  document.getElementById('numPersonas').textContent = totalPersonas;
+  document.getElementById('numNo').textContent = noVienen.length;
+
+  pintarLista(lista);
+}
+
+function pintarLista(lista){
+  const listaEl = document.getElementById('lista');
+  listaEl.innerHTML = '';
+  if (lista.length === 0) {
+    listaEl.innerHTML = '<div class="vacio">Todavía no hay confirmaciones.</div>';
+    return;
+  }
+  lista.forEach(r=>{
+    const item = document.createElement('div');
+    item.className = 'item';
+    const ico = r.asiste ? '💙' : '🤍';
+    const personasTxt = r.asiste ? `${r.personas || 1} pers.` : '—';
+    item.innerHTML =
+      '<span class="ico">' + ico + '</span>' +
+      '<span class="nombre"></span>' +
+      '<span class="personas">' + personasTxt + '</span>';
+    item.querySelector('.nombre').textContent = r.nombre; // textContent: sin riesgo de inyectar HTML
+    listaEl.appendChild(item);
+  });
+}
+
+document.getElementById('buscador').addEventListener('input', (e)=>{
+  const q = e.target.value.trim().toLowerCase();
+  pintarLista(filas.filter(r => (r.nombre || '').toLowerCase().includes(q)));
+});
+</script>
+</body>
+</html>
